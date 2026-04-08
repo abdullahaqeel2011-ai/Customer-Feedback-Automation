@@ -1,0 +1,220 @@
+{
+  "name": "Customer Complaint & Feedback Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "customer-complaint",
+        "options": {
+          "noResponseBody": true
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0832e3e1-2e38-4ac7-9008-7c140faa14c5",
+      "name": "Webhook",
+      "webhookId": "8e15d0be-2cad-43ef-83e1-35538543b8f0"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cebf7dd3-35a6-4a8c-be4d-0b6f5e4aaa39",
+              "name": "CustomerName",
+              "value": "={{ $json.body.CustomerName }}",
+              "type": "string"
+            },
+            {
+              "id": "0019e946-685f-4d4f-a77f-f1b3890db4f9",
+              "name": "AccountNumber",
+              "value": "={{ $json.body.AccountNumber }}",
+              "type": "string"
+            },
+            {
+              "id": "de880967-5088-4632-948c-0ec0c397b53b",
+              "name": "ComplaintType",
+              "value": "={{ $json.body.ComplaintType }}",
+              "type": "string"
+            },
+            {
+              "id": "adb69ed8-0eb9-42c4-83c1-8a1072ec750c",
+              "name": "Message",
+              "value": "={{ $json.body.Message }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "ed7d56dd-432e-4a96-b876-790ec2a75292",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "fcca2b03-4bee-4bb2-996e-dfad0465b0d2",
+              "leftValue": "={{ $json.ComplaintType }}",
+              "rightValue": "Card Issue",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "beb4d4f5-a4b7-48ce-8da7-0f5ff70ab1e4",
+              "leftValue": "={{ $json.ComplaintType }}",
+              "rightValue": "Online Banking",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "fc42802a-68f9-4bcf-9f0a-26c164efee4d",
+              "leftValue": "={{ $json.ComplaintType }}",
+              "rightValue": "Loan Inquiry",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "fcf747bc-8be3-4e43-be2c-5f4f8bc37851",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "receptionist376@gmail.com",
+        "subject": "=New Complaint: {{$json[\"ComplaintType\"]}} from {{$json[\"CustomerName\"]}}",
+        "message": "=<div style=\"font-family:Arial, sans-serif; line-height:1.5;\"> \n\n<h3 style=\"color:#0d6efd;\">New Customer Complaint</h3>   \n\n<p><b>Name:</b> {{$json[\"CustomerName\"]}}</p>   \n\n<p><b>Account Number:</b> {{$json[\"AccountNumber\"]}}</p>\n\n<p><b>Type:</b> {{$json[\"ComplaintType\"]}}</p>   \n\n<p><b>Message:</b> {{$json[\"Message\"]}}</p>   \n\n<p><i>Received on: {{$now}}</i></p> \n\n</div>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        -96
+      ],
+      "id": "7b4c19bc-4f2d-429e-a070-c893aa260f4c",
+      "name": "(Card Issue, Online Banking, Loan Inquiry)",
+      "webhookId": "c170dd8c-0471-46f6-a01f-cc98b96bbf8b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "tNh7bcwMkFj4Djhj",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "receptionist376@gmail.com",
+        "subject": "=New Complaint – Uncategorized: {{$json[\"CustomerName\"]}}",
+        "message": "=<div style=\"font-family:Arial, sans-serif; line-height:1.5;\">\n\n<h3 style=\"color:#dc3545;\">Uncategorized Customer Complaint</h3>   \n\n<p><b>Customer Name:</b> {{$json[\"CustomerName\"]}}</p>   \n\n<p><b>Account Number:</b> {{$json[\"AccountNumber\"]}}</p>   \n\n<p><b>Complaint Type:</b> {{$json[\"ComplaintType\"]}}</p>   \n\n<p><b>Message:</b> {{$json[\"Message\"]}}</p>   \n\n<p><i>Received on: {{$now}}</i></p> </div>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        112
+      ],
+      "id": "28648152-4991-4d87-81eb-5f1feb22d83f",
+      "name": "All other complaints",
+      "webhookId": "1dfbe20d-c52a-4a0c-b9d9-5fa3b8b5b294",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "tNh7bcwMkFj4Djhj",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "(Card Issue, Online Banking, Loan Inquiry)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "All other complaints",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7168ff14-568b-4871-8844-732ab7d5a67c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0b399926eba837a58c4079566202900ab98e3dc716f60db02cf1ef268bd70c7e"
+  },
+  "id": "EX3UEolKfr2j15wG",
+  "tags": []
+}
